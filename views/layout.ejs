@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title><%= pageTitle %></title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <a href="/" class="site-name"><%= instanceName %></a>
+    <div class="header-controls">
+      <a href="/threads/new" class="ctrl-btn new-thread-link">new thread</a>
+    </div>
+  </header>
+
+  <%- include(view) %>
+
+  <script>
+    // Reserved for Milestone 3 (handle persistence) and Milestone 5
+    // (text size toggle, once-per-session empty-state animation).
+  </script>
+</body>
+</html>

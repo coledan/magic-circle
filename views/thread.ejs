@@ -1,0 +1,19 @@
+<main class="content">
+  <a href="/" class="back-link">← all threads</a>
+  <h1 class="thread-page-title"><%= thread.title %></h1>
+
+  <% posts.forEach(function (p) { %>
+    <article class="post">
+      <div class="post-body">
+        <% p.paragraphs.forEach(function (para) { %>
+          <p><%= para %></p>
+        <% }) %>
+      </div>
+      <div class="meta">
+        <span class="author"><%= p.handle %></span>
+        <span class="sep">◆</span>
+        <span><%= p.timestamp_literary %></span>
+      </div>
+    </article>
+  <% }) %>
+</main>

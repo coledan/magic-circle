@@ -1,0 +1,18 @@
+<main class="content">
+  <% if (threads.length === 0) { %>
+    <div class="empty-state">
+      <p>no threads yet.</p>
+    </div>
+  <% } else { %>
+    <% threads.forEach(function (t) { %>
+      <div class="thread-row">
+        <a href="/threads/<%= t.id %>" class="thread-title"><%= t.title %></a>
+        <div class="meta">
+          <span class="author"><%= t.author %></span>
+          <span class="sep">◆</span>
+          <span><%= t.last_activity_literary %></span>
+        </div>
+      </div>
+    <% }) %>
+  <% } %>
+</main>
