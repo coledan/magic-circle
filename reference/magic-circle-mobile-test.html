@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>magic circle</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+  <style>
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      font-optical-sizing: auto;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    /* Theme variables */
+    :root {
+      /* Dark (default) */
+      --bg: #1a1a1a;
+      --surface: #242424;
+      --rule: #2a2a2a;
+      --title: #efefef;
+      --body: #d4d4d4;
+      --author: #b4b4b4;
+      --meta: #a8a8a8;
+
+      --measure: min(580px, 100vw - 40px);
+      --side-pad: 20px;
+    }
+
+    [data-theme="light"] {
+      --bg: #f0f0f0;
+      --surface: #e6e6e6;
+      --rule: #cfcfcf;
+      --title: #1a1a1a;
+      --body: #2c2c2c;
+      --author: #4a4a4a;
+      --meta: #5a5a5a;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --bg: #f0f0f0;
+        --surface: #e6e6e6;
+        --rule: #cfcfcf;
+        --title: #1a1a1a;
+        --body: #2c2c2c;
+        --author: #4a4a4a;
+        --meta: #5a5a5a;
+      }
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--body);
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 19px;
+      line-height: 1.5;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding-bottom: env(safe-area-inset-bottom);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible {
+      outline: 1px solid var(--author);
+      outline-offset: 2px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px var(--side-pad) 18px;
+      border-bottom: 0.5px solid var(--rule);
+    }
+
+    .site-name {
+      font-family: 'Newsreader', Georgia, serif;
+      font-style: italic;
+      font-size: 18px;
+      color: var(--title);
+      text-decoration: none;
+      letter-spacing: 0.005em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ctrl-btn {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--author);
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px 10px;
+      line-height: 1;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .ctrl-btn:hover { color: var(--title); }
+    .new-thread-link { color: var(--title); }
+
+    /* Content column */
+    .content {
+      width: var(--measure);
+      margin: 0 auto;
+    }
+
+    /* Index */
+    .thread-row {
+      padding: 1.5rem 0;
+      border-bottom: 0.5px solid var(--rule);
+    }
+
+    .thread-row:last-child { border-bottom: none; }
+
+    .thread-title {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 21px;
+      line-height: 1.35;
+      color: var(--title);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+
+    .thread-title:active { opacity: 0.7; }
+
+    .meta {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--meta);
+      line-height: 1.4;
+    }
+
+    .meta .author { color: var(--author); }
+    .meta .sep { display: inline-block; margin: 0 0.6em; }
+
+    /* Thread view */
+    .back-link {
+      display: inline-block;
+      padding: 18px 0 4px;
+      color: var(--meta);
+      text-decoration: none;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .back-link:hover { color: var(--title); }
+
+    .thread-page-title {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 24px;
+      line-height: 1.35;
+      color: var(--title);
+      font-weight: 400;
+      margin: 28px 0 8px;
+    }
+
+    .post {
+      padding: 1.75rem 0;
+      border-bottom: 0.5px solid var(--rule);
+    }
+
+    .post:first-of-type { padding-top: 1.5rem; }
+    .post:last-of-type { border-bottom: none; }
+
+    .post-body {
+      color: var(--body);
+      margin-bottom: 1.4rem;
+    }
+
+    .post-body p {
+      margin-bottom: 1em;
+    }
+
+    .post-body p:last-child { margin-bottom: 0; }
+
+    /* Composer */
+    .composer-block {
+      padding: 2rem 0 3rem;
+      border-top: 0.5px solid var(--rule);
+      margin-top: 1rem;
+    }
+
+    .composer-label {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--meta);
+      margin-bottom: 14px;
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      background: var(--surface);
+      border: none;
+      color: var(--body);
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 19px;
+      line-height: 1.5;
+      padding: 16px 16px;
+      resize: vertical;
+      border-radius: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    textarea::placeholder, input::placeholder {
+      color: var(--meta);
+      font-style: italic;
+      opacity: 1;
+    }
+
+    .title-input {
+      font-size: 24px;
+      line-height: 1.35;
+      margin-bottom: 14px;
+    }
+
+    .reply-textarea { min-height: 160px; }
+    .new-thread-textarea { min-height: 280px; }
+
+    .handle-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .handle-label {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--meta);
+      white-space: nowrap;
+    }
+
+    .handle-input {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      width: 180px;
+      max-width: 100%;
+    }
+
+    .submit-btn {
+      margin-top: 22px;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--title);
+      background: none;
+      border: 0.5px solid var(--rule);
+      padding: 14px 22px;
+      cursor: pointer;
+      border-radius: 2px;
+      min-height: 44px;
+    }
+
+    .submit-btn:hover { border-color: var(--author); }
+    .submit-btn:active { opacity: 0.7; }
+
+    .new-thread-fields { margin-top: 24px; }
+
+    /* Empty state */
+    .empty-state {
+      padding: 56px 0 64px;
+      text-align: center;
+      color: var(--meta);
+    }
+
+    /* Wrapper containing the SVG circle and the HTML symbol overlay */
+    .circle-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto 36px;
+      container-type: inline-size;
+    }
+
+    .circle-mark {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+
+    /* The line being drawn */
+    .ring {
+      stroke-dasharray: 1005; /* 2π × 160 ≈ 1005 */
+      stroke-dashoffset: 1005;
+      stroke: var(--meta);
+      animation: draw-ring 2.2s cubic-bezier(0.45, 0, 0.12, 1) forwards;
+    }
+
+    @keyframes draw-ring {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* The spark — rotates around center in sync with the leading edge */
+    .spark-group {
+      transform-origin: 180px 180px;
+      animation: spark-orbit 2.2s cubic-bezier(0.45, 0, 0.12, 1) forwards;
+    }
+
+    @keyframes spark-orbit {
+      to { transform: rotate(360deg); }
+    }
+
+    .spark-glow {
+      fill: var(--author);
+      opacity: 0;
+      animation: spark-glow-anim 2.2s ease-out forwards;
+    }
+
+    .spark-core {
+      fill: var(--title);
+      opacity: 0;
+      animation: spark-core-anim 2.2s ease-out forwards;
+    }
+
+    @keyframes spark-glow-anim {
+      0% { opacity: 0; }
+      6% { opacity: 0.4; }
+      88% { opacity: 0.4; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes spark-core-anim {
+      0% { opacity: 0; }
+      6% { opacity: 1; }
+      88% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Symbol overlay — HTML text positioned over the SVG.
+       Avoids iOS Safari's unreliable dominant-baseline behavior with tall glyphs. */
+    .symbol-stack {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .symbol {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 88px;            /* fallback for browsers without container queries */
+      font-size: 25cqw;           /* responsive: 25% of container width */
+      line-height: 1.5;           /* room for tall glyphs (◆ extends beyond em-box) */
+      color: var(--author);
+      opacity: 0;
+      animation-fill-mode: forwards;
+      animation-timing-function: ease;
+      /* Give the glyph explicit breathing room so nothing clips it */
+      padding: 0.25em 0;
+      overflow: visible;
+      display: inline-block;
+    }
+
+    .symbol-1 {
+      animation-name: cycle-symbol;
+      animation-duration: 1.1s;
+      animation-delay: 2.3s;
+    }
+
+    .symbol-2 {
+      animation-name: cycle-symbol;
+      animation-duration: 1.1s;
+      animation-delay: 2.9s;
+    }
+
+    .symbol-3 {
+      animation-name: settle-symbol;
+      animation-duration: 0.8s;
+      animation-delay: 3.5s;
+    }
+
+    @keyframes cycle-symbol {
+      0% { opacity: 0; }
+      30% { opacity: 1; }
+      65% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes settle-symbol {
+      to { opacity: 1; }
+    }
+
+    .begin-link {
+      font-family: 'Newsreader', Georgia, serif;
+      font-style: italic;
+      font-size: 19px;
+      color: var(--author);
+      text-decoration: none;
+      letter-spacing: 0.005em;
+      opacity: 0;
+      animation: fade-in 0.9s ease 4.2s forwards;
+      display: inline-block;
+      padding: 8px 16px;
+    }
+
+    .begin-link:hover { color: var(--title); }
+    .begin-link:active { opacity: 0.7; }
+
+    @keyframes fade-in {
+      to { opacity: 1; }
+    }
+
+    /* Prototype-only: preview toggle, not part of the actual product */
+    .preview-toggle {
+      display: block;
+      text-align: center;
+      padding: 48px 0 32px;
+      color: var(--meta);
+      opacity: 0.5;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .preview-toggle:hover { opacity: 1; }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#" class="site-name" data-nav="index">magic circle</a>
+    <div class="header-controls">
+      <a href="#" class="ctrl-btn new-thread-link" data-nav="new-thread">new thread</a>
+    </div>
+  </header>
+
+  <!-- INDEX -->
+  <main class="content" id="view-index">
+    <div class="thread-row">
+      <a href="#" class="thread-title" data-nav="thread">the comment section, what we were really doing there</a>
+      <div class="meta">
+        <span class="author">anders</span>
+        <span class="sep">◆</span>
+        <span>this morning</span>
+      </div>
+    </div>
+
+    <div class="thread-row">
+      <a href="#" class="thread-title" data-nav="thread">what's the right unit of attention in 2026</a>
+      <div class="meta">
+        <span class="author">nightingale</span>
+        <span class="sep">◆</span>
+        <span>yesterday</span>
+      </div>
+    </div>
+
+    <div class="thread-row">
+      <a href="#" class="thread-title" data-nav="thread">old letterboxd reviews, read like field notes</a>
+      <div class="meta">
+        <span class="author">jules</span>
+        <span class="sep">◆</span>
+        <span>wednesday</span>
+      </div>
+    </div>
+
+    <div class="thread-row">
+      <a href="#" class="thread-title" data-nav="thread">a small rant about typography in fintech</a>
+      <div class="meta">
+        <span class="author">f.reed</span>
+        <span class="sep">◆</span>
+        <span>last friday</span>
+      </div>
+    </div>
+
+    <div class="thread-row">
+      <a href="#" class="thread-title" data-nav="thread">the case against discoverability</a>
+      <div class="meta">
+        <span class="author">minor.thirds</span>
+        <span class="sep">◆</span>
+        <span>a few weeks ago</span>
+      </div>
+    </div>
+
+    <div class="thread-row">
+      <a href="#" class="thread-title" data-nav="thread">books for thinking about institutions, slow ones</a>
+      <div class="meta">
+        <span class="author">anders</span>
+        <span class="sep">◆</span>
+        <span>last month</span>
+      </div>
+    </div>
+
+    <a href="#" class="preview-toggle" data-nav="empty">preview: empty state</a>
+  </main>
+
+  <!-- EMPTY STATE -->
+  <main class="content" id="view-empty" hidden>
+    <div class="empty-state">
+      <div class="circle-wrap">
+        <svg class="circle-mark" viewBox="0 0 360 360" aria-hidden="true">
+          <!-- Ring drawn from 12 o'clock, clockwise -->
+          <circle
+            class="ring"
+            cx="180" cy="180" r="160"
+            fill="none"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            transform="rotate(-90 180 180)"
+          />
+          <!-- Spark with soft glow, rotates around center in sync with the leading edge -->
+          <g class="spark-group">
+            <circle class="spark-glow" cx="180" cy="20" r="9" />
+            <circle class="spark-core" cx="180" cy="20" r="3.2" />
+          </g>
+        </svg>
+        <!-- Three writing symbols, HTML text to avoid SVG baseline clipping on iOS -->
+        <div class="symbol-stack" aria-hidden="true">
+          <span class="symbol symbol-1">¶</span>
+          <span class="symbol symbol-2">※</span>
+          <span class="symbol symbol-3">◆</span>
+        </div>
+      </div>
+      <a href="#" class="begin-link" data-nav="new-thread">begin</a>
+    </div>
+    <a href="#" class="preview-toggle" data-nav="index">preview: populated state</a>
+  </main>
+
+  <!-- THREAD -->
+  <main class="content" id="view-thread" hidden>
+    <a href="#" class="back-link" data-nav="index">← all threads</a>
+    <h1 class="thread-page-title">the comment section, what we were really doing there</h1>
+
+    <article class="post">
+      <div class="post-body">
+        <p>I keep coming back to the question of what we were actually doing in the comment section of a 2004 Slate article or a Talking Points Memo blog. The official answer was discussion. The actual answer was something stranger. Most of us weren't there to debate the article — we were there because the article gave us a pretext to think out loud near other people who were also thinking out loud, and the article was the campfire we'd all gathered around.</p>
+        <p>When the comment section died — first to Disqus, then to social, then to nothing — what we lost was that pretext. Twitter offered the same nominal activity (talk about the news) but the structure was wrong. There was no campfire. Just a dispersed crowd shouting toward an algorithm.</p>
+        <p>I'm not arguing for bringing back comment sections under articles. That ship sailed and the writers were right to want it gone. But I think there's something worth recovering in the campfire form — a bounded space, attached to a thing worth thinking about, where the goal is the thinking-together more than any particular conclusion.</p>
+      </div>
+      <div class="meta">
+        <span class="author">anders</span>
+        <span class="sep">◆</span>
+        <span>yesterday morning</span>
+      </div>
+    </article>
+
+    <article class="post">
+      <div class="post-body">
+        <p>There's a McLuhan-shaped argument lurking in here, which is that the medium of the comment section produced something the medium of the social feed cannot. The comment section was bounded, slow (relative to feeds), and contextually anchored. Posts referred to the article and to each other, in that order. The feed inverts this — the feed is the context, posts refer to other posts in the feed, and the originating thing becomes incidental.</p>
+        <p>What killed comment sections wasn't moderation cost. It was the migration of the impulse to elsewhere. By 2014 the people who would have been in a Slate comment thread were on Twitter, and the comment section died of attrition before it died of policy.</p>
+      </div>
+      <div class="meta">
+        <span class="author">jules</span>
+        <span class="sep">◆</span>
+        <span>yesterday evening</span>
+      </div>
+    </article>
+
+    <article class="post">
+      <div class="post-body">
+        <p>the campfire framing is doing work for me, but i want to push on it. the campfires that worked, in my memory, weren't general — they were the ones with a specific community already half-formed around them. talking points memo comments worked because the readership was self-selected. slate comments worked less well because the readership was less coherent. the worst comment sections, anywhere by 2010, were on sites with national traffic and no community.</p>
+        <p>so maybe the campfire requires the kindling of a community that was already going to gather, and the article is the occasion, not the cause.</p>
+      </div>
+      <div class="meta">
+        <span class="author">minor.thirds</span>
+        <span class="sep">◆</span>
+        <span>this morning</span>
+      </div>
+    </article>
+
+    <article class="post">
+      <div class="post-body">
+        <p>agreed, but the asymmetry cuts the other way too — there were things that only worked on general-readership sites, because the people who showed up brought stuff the community didn't have. the campfire sometimes needs the stranger.</p>
+        <p>what I miss most isn't the comment thread per se but the specific pleasure of opening an article by someone you trust, scrolling to the bottom, and finding three or four real responses from people you'd come to recognize. it was a smaller thing than we make it out to be, and it was good.</p>
+      </div>
+      <div class="meta">
+        <span class="author">f.reed</span>
+        <span class="sep">◆</span>
+        <span>an hour ago</span>
+      </div>
+    </article>
+
+    <div class="composer-block">
+      <div class="composer-label">add a reply</div>
+      <textarea class="reply-textarea" placeholder="take your time with this."></textarea>
+      <div class="handle-row">
+        <span class="handle-label">posting as</span>
+        <input type="text" class="handle-input" placeholder="your handle" data-handle="reply">
+      </div>
+      <button class="submit-btn" type="button">post reply</button>
+    </div>
+  </main>
+
+  <!-- NEW THREAD -->
+  <main class="content" id="view-new-thread" hidden>
+    <a href="#" class="back-link" data-nav="index">← all threads</a>
+    <div class="new-thread-fields">
+      <input type="text" class="title-input" placeholder="thread title">
+      <textarea class="new-thread-textarea" placeholder="there's no rush"></textarea>
+      <div class="handle-row">
+        <span class="handle-label">posting as</span>
+        <input type="text" class="handle-input" placeholder="your handle" data-handle="new">
+      </div>
+      <button class="submit-btn" type="button">start thread</button>
+    </div>
+  </main>
+
+  <script>
+    // Navigation
+    function showView(view) {
+      document.querySelectorAll('main').forEach(m => m.hidden = true);
+      const target = document.getElementById('view-' + view);
+      if (target) target.hidden = false;
+      window.scrollTo(0, 0);
+
+      // Re-trigger empty-state animations on each visit (prototype convenience;
+      // production would play once per session via sessionStorage)
+      if (view === 'empty') {
+        const animated = target.querySelectorAll(
+          '.ring, .spark-group, .spark-glow, .spark-core, .symbol, .begin-link'
+        );
+        animated.forEach(el => {
+          el.style.animation = 'none';
+          // Force reflow so removing + re-adding the animation restarts it
+          void el.getBoundingClientRect();
+          el.style.animation = '';
+        });
+      }
+    }
+
+    document.querySelectorAll('[data-nav]').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        showView(el.getAttribute('data-nav'));
+      });
+    });
+
+    // Theme: defaults to system preference, no manual override in v0
+    // (Kept for potential future use; respects prefers-color-scheme automatically via CSS)
+
+    // Handle persistence
+    try {
+      const savedHandle = localStorage.getItem('magic-circle:handle');
+      if (savedHandle) {
+        document.querySelectorAll('[data-handle]').forEach(i => i.value = savedHandle);
+      }
+    } catch (e) {}
+
+    document.querySelectorAll('[data-handle]').forEach(input => {
+      const persist = () => {
+        const v = input.value.trim();
+        if (v) {
+          try { localStorage.setItem('magic-circle:handle', v); } catch (e) {}
+          // Sync to all handle inputs
+          document.querySelectorAll('[data-handle]').forEach(other => {
+            if (other !== input) other.value = v;
+          });
+        }
+      };
+      input.addEventListener('change', persist);
+      input.addEventListener('blur', persist);
+    });
+  </script>
+</body>
+</html>
