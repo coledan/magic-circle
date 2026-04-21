@@ -9,11 +9,27 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <script>
+    // Apply the saved text-size preference before first paint, so large
+    // readers don't briefly flash at 19px on a desktop return visit.
+    (function () {
+      try {
+        var s = localStorage.getItem('magic-circle:text-size');
+        if (s === 'large') document.documentElement.setAttribute('data-text-size', 'large');
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <header>
     <a href="/" class="site-name"><%= instanceName %></a>
     <div class="header-controls">
+      <button
+        type="button"
+        class="ctrl-btn text-size-toggle"
+        aria-label="toggle text size"
+        aria-pressed="false"
+      >Aa</button>
       <a href="/threads/new" class="ctrl-btn new-thread-link">new thread</a>
     </div>
   </header>
@@ -22,29 +38,76 @@
 
   <script>
     (function () {
-      var KEY = 'magic-circle:handle';
-
-      // Pre-fill any empty handle input with the saved handle.
+      // --- Handle persistence ------------------------------------------------
+      var HANDLE_KEY = 'magic-circle:handle';
       try {
-        var saved = localStorage.getItem(KEY);
+        var saved = localStorage.getItem(HANDLE_KEY);
         if (saved) {
           document.querySelectorAll('input[name="handle"]').forEach(function (i) {
             if (!i.value) i.value = saved;
           });
         }
       } catch (e) {}
-
-      // On form submit, persist whatever handle the participant typed.
       document.querySelectorAll('form').forEach(function (f) {
         f.addEventListener('submit', function () {
           try {
             var input = f.querySelector('input[name="handle"]');
             if (input && input.value.trim()) {
-              localStorage.setItem(KEY, input.value.trim());
+              localStorage.setItem(HANDLE_KEY, input.value.trim());
             }
           } catch (e) {}
         });
       });
+
+      // --- Text-size toggle (desktop only; button is hidden on mobile) ------
+      var SIZE_KEY = 'magic-circle:text-size';
+      var html = document.documentElement;
+      var sizeBtn = document.querySelector('.text-size-toggle');
+      if (sizeBtn) {
+        sizeBtn.setAttribute(
+          'aria-pressed',
+          html.getAttribute('data-text-size') === 'large' ? 'true' : 'false'
+        );
+        sizeBtn.addEventListener('click', function () {
+          var isLarge = html.getAttribute('data-text-size') === 'large';
+          if (isLarge) {
+            html.removeAttribute('data-text-size');
+            sizeBtn.setAttribute('aria-pressed', 'false');
+            try { localStorage.setItem(SIZE_KEY, 'default'); } catch (e) {}
+          } else {
+            html.setAttribute('data-text-size', 'large');
+            sizeBtn.setAttribute('aria-pressed', 'true');
+            try { localStorage.setItem(SIZE_KEY, 'large'); } catch (e) {}
+          }
+        });
+      }
+
+      // --- Empty-state once-per-session playback ----------------------------
+      // The animation is the founding gesture; repeating it on every visit
+      // cheapens it. Play on first visit of a session, hold the final state
+      // on subsequent visits in the same session.
+      var EMPTY_FLAG = 'magic-circle:empty-animated';
+      var emptyState = document.querySelector('.empty-state');
+      if (emptyState) {
+        var reducedMotion = false;
+        try {
+          reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        } catch (e) {}
+        var alreadyAnimated = false;
+        try {
+          alreadyAnimated = sessionStorage.getItem(EMPTY_FLAG) === '1';
+        } catch (e) {}
+        if (reducedMotion || alreadyAnimated) {
+          emptyState.classList.add('animated-already');
+        } else {
+          emptyState.classList.add('animate-now');
+          // Last animation ends around 5.1s (begin-link fade-in: delay 4.2s +
+          // duration 0.9s). Write the flag shortly after.
+          setTimeout(function () {
+            try { sessionStorage.setItem(EMPTY_FLAG, '1'); } catch (e) {}
+          }, 5200);
+        }
+      }
     })();
   </script>
 </body>

@@ -10,6 +10,7 @@
       name="title"
       class="title-input"
       placeholder="thread title"
+      aria-label="thread title"
       value="<%= composer.title %>"
       maxlength="200"
     >
@@ -17,6 +18,7 @@
       name="body"
       class="new-thread-textarea"
       placeholder="there's no rush"
+      aria-label="first post"
       maxlength="10000"
     ><%= composer.body %></textarea>
     <div class="handle-row">
@@ -26,6 +28,7 @@
         name="handle"
         class="handle-input"
         placeholder="your handle"
+        aria-label="handle"
         value="<%= composer.handle %>"
         maxlength="32"
       >

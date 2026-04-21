@@ -23,6 +23,18 @@ html {
 
   --measure: min(580px, 100vw - 40px);
   --side-pad: 20px;
+
+  /* Text sizes — swapped by the Aa toggle on desktop. Line heights are
+     unitless (1.5, 1.35) so they scale automatically. */
+  --body-size: 19px;
+  --title-index-size: 21px;
+  --title-thread-size: 24px;
+}
+
+html[data-text-size="large"] {
+  --body-size: 22px;
+  --title-index-size: 24px;
+  --title-thread-size: 28px;
 }
 
 @media (prefers-color-scheme: light) {
@@ -42,7 +54,7 @@ body {
   background: var(--bg);
   color: var(--body);
   font-family: 'Newsreader', Georgia, serif;
-  font-size: 19px;
+  font-size: var(--body-size);
   line-height: 1.5;
   min-height: 100vh;
   min-height: 100dvh;
@@ -121,7 +133,7 @@ header {
 
 .thread-title {
   font-family: 'Newsreader', Georgia, serif;
-  font-size: 21px;
+  font-size: var(--title-index-size);
   line-height: 1.35;
   color: var(--title);
   text-decoration: none;
@@ -161,7 +173,7 @@ header {
 
 .thread-page-title {
   font-family: 'Newsreader', Georgia, serif;
-  font-size: 24px;
+  font-size: var(--title-thread-size);
   line-height: 1.35;
   color: var(--title);
   font-weight: 400;
@@ -214,7 +226,7 @@ input[type="text"] {
   border: none;
   color: var(--body);
   font-family: 'Newsreader', Georgia, serif;
-  font-size: 19px;
+  font-size: var(--body-size);
   line-height: 1.5;
   padding: 16px 16px;
   resize: vertical;
@@ -231,7 +243,7 @@ input::placeholder {
 }
 
 .title-input {
-  font-size: 24px;
+  font-size: var(--title-thread-size);
   line-height: 1.35;
   margin-bottom: 14px;
 }
@@ -307,11 +319,16 @@ input::placeholder {
   overflow: visible;
 }
 
+/* Empty-state animations are gated on a class applied by JS:
+   - No class (JS not run yet or disabled): initial frame, nothing happens.
+   - .animate-now: play the full drawing sequence once.
+   - .animated-already: jump directly to the final state (used when the
+     once-per-session flag says the animation has already played). */
+
 .ring {
   stroke-dasharray: 1005;
   stroke-dashoffset: 1005;
   stroke: var(--meta);
-  animation: draw-ring 2.2s cubic-bezier(0.45, 0, 0.12, 1) forwards;
 }
 
 @keyframes draw-ring {
@@ -320,7 +337,6 @@ input::placeholder {
 
 .spark-group {
   transform-origin: 180px 180px;
-  animation: spark-orbit 2.2s cubic-bezier(0.45, 0, 0.12, 1) forwards;
 }
 
 @keyframes spark-orbit {
@@ -330,13 +346,11 @@ input::placeholder {
 .spark-glow {
   fill: var(--author);
   opacity: 0;
-  animation: spark-glow-anim 2.2s ease-out forwards;
 }
 
 .spark-core {
   fill: var(--title);
   opacity: 0;
-  animation: spark-core-anim 2.2s ease-out forwards;
 }
 
 @keyframes spark-glow-anim {
@@ -370,29 +384,9 @@ input::placeholder {
   line-height: 1.5;
   color: var(--author);
   opacity: 0;
-  animation-fill-mode: forwards;
-  animation-timing-function: ease;
   padding: 0.25em 0;
   overflow: visible;
   display: inline-block;
-}
-
-.symbol-1 {
-  animation-name: cycle-symbol;
-  animation-duration: 1.1s;
-  animation-delay: 2.3s;
-}
-
-.symbol-2 {
-  animation-name: cycle-symbol;
-  animation-duration: 1.1s;
-  animation-delay: 2.9s;
-}
-
-.symbol-3 {
-  animation-name: settle-symbol;
-  animation-duration: 0.8s;
-  animation-delay: 3.5s;
 }
 
 @keyframes cycle-symbol {
@@ -409,12 +403,11 @@ input::placeholder {
 .begin-link {
   font-family: 'Newsreader', Georgia, serif;
   font-style: italic;
-  font-size: 19px;
+  font-size: var(--body-size);
   color: var(--author);
   text-decoration: none;
   letter-spacing: 0.005em;
   opacity: 0;
-  animation: fade-in 0.9s ease 4.2s forwards;
   display: inline-block;
   padding: 8px 16px;
 }
@@ -426,7 +419,69 @@ input::placeholder {
   to { opacity: 1; }
 }
 
+/* ---------- Empty-state playback gates ---------- */
+
+.empty-state.animate-now .ring {
+  animation: draw-ring 2.2s cubic-bezier(0.45, 0, 0.12, 1) forwards;
+}
+
+.empty-state.animate-now .spark-group {
+  animation: spark-orbit 2.2s cubic-bezier(0.45, 0, 0.12, 1) forwards;
+}
+
+.empty-state.animate-now .spark-glow {
+  animation: spark-glow-anim 2.2s ease-out forwards;
+}
+
+.empty-state.animate-now .spark-core {
+  animation: spark-core-anim 2.2s ease-out forwards;
+}
+
+.empty-state.animate-now .symbol-1 {
+  animation: cycle-symbol 1.1s ease 2.3s forwards;
+}
+
+.empty-state.animate-now .symbol-2 {
+  animation: cycle-symbol 1.1s ease 2.9s forwards;
+}
+
+.empty-state.animate-now .symbol-3 {
+  animation: settle-symbol 0.8s ease 3.5s forwards;
+}
+
+.empty-state.animate-now .begin-link {
+  animation: fade-in 0.9s ease 4.2s forwards;
+}
+
+/* Final state — applied when the once-per-session flag says the
+   animation has already played this session, or in place of the
+   animation when prefers-reduced-motion is set. */
+.empty-state.animated-already .ring {
+  stroke-dashoffset: 0;
+}
+
+.empty-state.animated-already .symbol-3,
+.empty-state.animated-already .begin-link {
+  opacity: 1;
+}
+
 [hidden] { display: none !important; }
+
+/* ---------- Aa text-size toggle (desktop only) ---------- */
+
+.text-size-toggle {
+  /* Override the tracked-uppercase ctrl-btn treatment so "Aa" renders
+     as written, with the capital and lowercase reading as a pair. */
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+
+@media (max-width: 599px) {
+  .text-size-toggle {
+    display: none;
+  }
+}
 
 /* ---------- Desktop overrides ----------
    Per design-decisions.md: meta type is 10px on desktop, 11px on mobile.
@@ -439,5 +494,11 @@ input::placeholder {
   .handle-label,
   .submit-btn {
     font-size: 10px;
+  }
+
+  /* The Aa toggle keeps its own size — 10px reads as too small for the
+     stylized "Aa" glyph pair. */
+  .text-size-toggle {
+    font-size: 13px;
   }
 }
