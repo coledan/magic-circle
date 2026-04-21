@@ -1,6 +1,11 @@
 const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 
+// Input constraints (from build-spec).
+const HANDLE_MAX = 32;
+const TITLE_MAX = 200;
+const BODY_MAX = 10000;
+
 function calendarDayDiff(later, earlier) {
   const laterStart = new Date(later.getFullYear(), later.getMonth(), later.getDate()).getTime();
   const earlierStart = new Date(earlier.getFullYear(), earlier.getMonth(), earlier.getDate()).getTime();
@@ -38,8 +43,48 @@ function literaryTime(tsSeconds, nowSeconds) {
   return `${MONTHS[tsDate.getMonth()]} ${tsDate.getFullYear()}`;
 }
 
+// Paragraph split: per PRD, "line breaks in the body render as paragraph
+// breaks." Consecutive newlines collapse into a single split point.
 function paragraphs(body) {
-  return body.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 0);
+  return body.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
 }
 
-module.exports = { literaryTime, paragraphs };
+// Per PRD: strip leading/trailing whitespace, normalize internal whitespace
+// (including newlines) to single spaces. Unicode allowed.
+function normalizeHandle(raw) {
+  if (typeof raw !== 'string') return '';
+  return raw.trim().replace(/\s+/g, ' ');
+}
+
+function validateHandle(raw) {
+  const value = normalizeHandle(raw);
+  if (value.length === 0) return { error: 'a handle is required to post.' };
+  if (value.length > HANDLE_MAX) return { error: `a handle can be at most ${HANDLE_MAX} characters.` };
+  return { value };
+}
+
+function validateTitle(raw) {
+  const value = typeof raw === 'string' ? raw.trim() : '';
+  if (value.length === 0) return { error: 'the thread needs a title.' };
+  if (value.length > TITLE_MAX) return { error: `the title can be at most ${TITLE_MAX} characters.` };
+  return { value };
+}
+
+function validateBody(raw) {
+  const value = typeof raw === 'string' ? raw.trim() : '';
+  if (value.length === 0) return { error: 'the post is empty.' };
+  if (value.length > BODY_MAX) return { error: `the post is longer than ${BODY_MAX} characters.` };
+  return { value };
+}
+
+module.exports = {
+  literaryTime,
+  paragraphs,
+  normalizeHandle,
+  validateHandle,
+  validateTitle,
+  validateBody,
+  HANDLE_MAX,
+  TITLE_MAX,
+  BODY_MAX,
+};

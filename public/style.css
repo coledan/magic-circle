@@ -200,6 +200,13 @@ header {
   margin-bottom: 14px;
 }
 
+.composer-error {
+  font-family: 'Newsreader', Georgia, serif;
+  font-style: italic;
+  color: var(--meta);
+  margin-bottom: 14px;
+}
+
 textarea,
 input[type="text"] {
   width: 100%;

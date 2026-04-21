@@ -21,8 +21,31 @@
   <%- include(view) %>
 
   <script>
-    // Reserved for Milestone 3 (handle persistence) and Milestone 5
-    // (text size toggle, once-per-session empty-state animation).
+    (function () {
+      var KEY = 'magic-circle:handle';
+
+      // Pre-fill any empty handle input with the saved handle.
+      try {
+        var saved = localStorage.getItem(KEY);
+        if (saved) {
+          document.querySelectorAll('input[name="handle"]').forEach(function (i) {
+            if (!i.value) i.value = saved;
+          });
+        }
+      } catch (e) {}
+
+      // On form submit, persist whatever handle the participant typed.
+      document.querySelectorAll('form').forEach(function (f) {
+        f.addEventListener('submit', function () {
+          try {
+            var input = f.querySelector('input[name="handle"]');
+            if (input && input.value.trim()) {
+              localStorage.setItem(KEY, input.value.trim());
+            }
+          } catch (e) {}
+        });
+      });
+    })();
   </script>
 </body>
 </html>

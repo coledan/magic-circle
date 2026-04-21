@@ -3,7 +3,7 @@
   <h1 class="thread-page-title"><%= thread.title %></h1>
 
   <% posts.forEach(function (p) { %>
-    <article class="post">
+    <article class="post" id="post-<%= p.id %>">
       <div class="post-body">
         <% p.paragraphs.forEach(function (para) { %>
           <p><%= para %></p>
@@ -16,4 +16,31 @@
       </div>
     </article>
   <% }) %>
+
+  <div class="composer-block">
+    <div class="composer-label">add a reply</div>
+    <form method="post" action="/threads/<%= thread.id %>/reply">
+      <% if (composer.error) { %>
+        <div class="composer-error" role="alert"><%= composer.error %></div>
+      <% } %>
+      <textarea
+        name="body"
+        class="reply-textarea"
+        placeholder="take your time with this."
+        maxlength="10000"
+      ><%= composer.body %></textarea>
+      <div class="handle-row">
+        <span class="handle-label">posting as</span>
+        <input
+          type="text"
+          name="handle"
+          class="handle-input"
+          placeholder="your handle"
+          value="<%= composer.handle %>"
+          maxlength="32"
+        >
+      </div>
+      <button class="submit-btn" type="submit">post reply</button>
+    </form>
+  </div>
 </main>

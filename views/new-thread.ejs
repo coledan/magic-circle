@@ -1,0 +1,35 @@
+<main class="content">
+  <a href="/" class="back-link">← all threads</a>
+
+  <form method="post" action="/threads" class="new-thread-fields">
+    <% if (composer.error) { %>
+      <div class="composer-error" role="alert"><%= composer.error %></div>
+    <% } %>
+    <input
+      type="text"
+      name="title"
+      class="title-input"
+      placeholder="thread title"
+      value="<%= composer.title %>"
+      maxlength="200"
+    >
+    <textarea
+      name="body"
+      class="new-thread-textarea"
+      placeholder="there's no rush"
+      maxlength="10000"
+    ><%= composer.body %></textarea>
+    <div class="handle-row">
+      <span class="handle-label">posting as</span>
+      <input
+        type="text"
+        name="handle"
+        class="handle-input"
+        placeholder="your handle"
+        value="<%= composer.handle %>"
+        maxlength="32"
+      >
+    </div>
+    <button class="submit-btn" type="submit">start thread</button>
+  </form>
+</main>
