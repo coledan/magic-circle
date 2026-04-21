@@ -13,8 +13,14 @@ const { seedIfEmpty } = require('./seed');
 const INSTANCE_NAME = process.env.INSTANCE_NAME || 'magic circle';
 const PORT = process.env.PORT || 3000;
 
-const seeded = seedIfEmpty();
-if (seeded) console.log('seeded dev data');
+// Seeding is opt-in via env var. Local dev sets SEED_DEV_DATA=1 in .env.
+// Production (Railway) leaves it unset so a freshly-deployed instance opens
+// empty and the founding gesture — the drawn-circle evocation — has its
+// proper first-visit moment.
+if (process.env.SEED_DEV_DATA === '1') {
+  const seeded = seedIfEmpty();
+  if (seeded) console.log('seeded dev data');
+}
 
 const app = express();
 app.disable('x-powered-by');
