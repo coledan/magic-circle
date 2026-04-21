@@ -17,8 +17,22 @@ const seeded = seedIfEmpty();
 if (seeded) console.log('seeded dev data');
 
 const app = express();
+app.disable('x-powered-by');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// --- Containment -----------------------------------------------------------
+// PRD: the room is closed to outsiders. Search engines don't index it;
+// link-sharing tools don't unfurl it.
+app.use((req, res, next) => {
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+  next();
+});
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send('User-agent: *\nDisallow: /\n');
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false, limit: '64kb' }));
 
